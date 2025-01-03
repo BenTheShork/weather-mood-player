@@ -1,4 +1,3 @@
-// src/services/weatherMusicMatcher.js
 const BASE_WEATHER_MAPPINGS  = {
     // Clear sky
     0: {
@@ -164,7 +163,6 @@ const BASE_WEATHER_MAPPINGS  = {
       const timePrefs = TIME_PREFERENCES[timeOfDay];
       const seasonPrefs = SEASON_PREFERENCES[season];
   
-      // Time of day matching
       if (timePrefs) {
         timePrefs.moods.forEach(mood => {
           if (songTags.moods?.includes(mood)) score += 2;
@@ -177,7 +175,6 @@ const BASE_WEATHER_MAPPINGS  = {
         });
       }
   
-      // Season matching
       if (seasonPrefs) {
         seasonPrefs.boost.forEach(tag => {
           if (songTags.moods?.includes(tag)) score += 2;
@@ -187,7 +184,6 @@ const BASE_WEATHER_MAPPINGS  = {
         });
       }
   
-      // Temperature context
       const tempCategory = this.getTemperatureCategory(temperature);
       const tempScore = this.calculateTemperatureScore(songTags, tempCategory);
       score += tempScore;
@@ -221,7 +217,6 @@ const BASE_WEATHER_MAPPINGS  = {
         atmospheric: ['dreamy', 'atmospheric', 'ambient', 'smooth']
       };
   
-      // Check if song's moods are consistently from the same group
       let groupCounts = Object.keys(moodGroups).map(group => ({
         group,
         count: moodGroups[group].filter(mood => songTags.moods?.includes(mood)).length
@@ -240,14 +235,11 @@ const BASE_WEATHER_MAPPINGS  = {
       const timeOfDay = this.getTimeOfDay();
       const season = this.getSeason();
       
-      // Base weather score
       let score = 0;
       let hasOppositeTag = false;
   
-      // Mood consistency bonus
       score += this.calculateMoodConsistency(songTags);
       
-      // Weather matching
       weatherPreferences.moods.forEach(mood => {
         if (songTags.moods?.includes(mood)) score += 3;
       });
@@ -260,11 +252,9 @@ const BASE_WEATHER_MAPPINGS  = {
         if (songTags.genres?.includes(genre)) score += 1;
       });
   
-      // Context score
       const contextScore = this.calculateContextScore(songTags, timeOfDay, season, temperature);
       score += contextScore;
   
-      // Check for opposing characteristics
       const opposites = {
         happy: ['sad', 'melancholic'],
         upbeat: ['mellow', 'calm'],
@@ -275,7 +265,6 @@ const BASE_WEATHER_MAPPINGS  = {
         intense: ['peaceful', 'calm']
       };
   
-      // Check for contradictions
       Object.entries(opposites).forEach(([mood, opposites]) => {
         if (songTags.moods?.includes(mood) && 
             opposites.some(opp => songTags.moods?.includes(opp))) {
@@ -287,7 +276,6 @@ const BASE_WEATHER_MAPPINGS  = {
         score *= 0.3;
       }
   
-      // Normalize score to 0-100 range
       return Math.min(100, Math.round(score * 2));
     },
   
@@ -298,7 +286,7 @@ const BASE_WEATHER_MAPPINGS  = {
           weatherScore: this.calculateSongScore(weatherCode, song.tags, temperature)
         }))
         .sort((a, b) => b.weatherScore - a.weatherScore)
-        .filter(song => song.weatherScore > 30); // Only return songs with decent match
+        .filter(song => song.weatherScore > 30);
     },
     calculateSongScore(weatherCode, songTags) {
       if (!songTags || !songTags.moods || !songTags.weather || !songTags.genres) {

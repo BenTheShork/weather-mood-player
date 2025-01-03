@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSpotify } from '../context/SpotifyContext';
 import WeatherDisplay from '../components/WeatherDisplay';
@@ -27,7 +26,6 @@ function Home() {
     enabled: !!location,
   });
 
-  // Process each song to get its tags
   const { data: songsWithTags, isLoading: isLoadingTags } = useQuery({
     queryKey: ['songs-with-tags', likedSongs?.items],
     queryFn: async () => {
