@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSpotify } from '../context/SpotifyContext';
 import { spotifyService } from '../services/spotifyService';
+import TrackAnalysis from './TrackAnalysis';
 
 function LikedSongs() {
   const { accessToken } = useSpotify();
@@ -46,6 +47,7 @@ function LikedSongs() {
               <p className="text-gray-600">
                 {item.track.artists.map((artist) => artist.name).join(', ')}
               </p>
+              <TrackAnalysis track={item.track} />
             </div>
             <div className="text-sm text-gray-500">
               {Math.floor(item.track.duration_ms / 60000)}:
