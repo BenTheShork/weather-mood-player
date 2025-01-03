@@ -1,8 +1,12 @@
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useSpotify } from '../context/SpotifyContext';
 import WeatherDisplay from '../components/WeatherDisplay';
+import SpotifyLogin from '../components/SpotifyLogin';
+import LikedSongs from '../components/LikedSongs';
 
 function Home() {
   const { location, error: locationError, loading: locationLoading } = useGeolocation();
+  const { accessToken } = useSpotify();
 
   if (locationLoading) {
     return (
@@ -33,6 +37,7 @@ function Home() {
           longitude={location.longitude}
         />
       )}
+      {!accessToken ? <SpotifyLogin /> : <LikedSongs />}
     </div>
   );
 }
