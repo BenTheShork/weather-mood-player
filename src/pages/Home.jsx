@@ -89,12 +89,12 @@ function Home() {
       ) : (
         <>
           {weather?.current && songsWithTags && (
-          <WeatherPlaylist 
-            weatherCode={weather.current.weathercode}
-            temperature={weather.current.temperature_2m}
-            songs={songsWithTags}
-          />
-        )}
+            <WeatherPlaylist 
+              weatherCode={weather.current.weathercode}
+              temperature={weather.current.temperature_2m}
+              songs={songsWithTags}
+            />
+          )}
           <LikedSongs />
         </>
       )}

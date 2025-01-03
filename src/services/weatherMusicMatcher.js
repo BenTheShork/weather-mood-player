@@ -134,6 +134,8 @@ const BASE_WEATHER_MAPPINGS  = {
   };
   
   export const weatherMusicMatcher = {
+    TIME_PREFERENCES,
+    SEASON_PREFERENCES,
     getTimeOfDay() {
       const hour = new Date().getHours();
       if (hour >= 5 && hour < 12) return 'morning';

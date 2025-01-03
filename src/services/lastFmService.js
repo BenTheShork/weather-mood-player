@@ -17,8 +17,6 @@ export const lastFmService = {
   },
 
   cleanTrackName(trackName) {
-    const original = trackName.toLowerCase();
-
     if (/[а-яА-ЯёЁ]/.test(trackName)) {
       return this.transliterate(trackName);
     }
