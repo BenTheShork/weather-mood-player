@@ -22,10 +22,14 @@ function Home() {
 
   const { data: weather, isLoading: isLoadingWeather } = useQuery({
     queryKey: ['weather', location?.latitude, location?.longitude],
-    queryFn: () => fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weathercode`
-    ).then(res => res.json()),
-    enabled: !!location,
+    queryFn: async () => {
+      if (!location?.latitude || !location?.longitude) return null;
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weathercode,windspeed_10m,winddirection_10m,apparent_temperature,precipitation,rain,cloudcover,visibility,is_day`
+      );
+      return response.json();
+    },
+    enabled: !!location?.latitude && !!location?.longitude,
     staleTime: 30 * 60 * 1000,
     cacheTime: 60 * 60 * 1000,
   });
@@ -33,6 +37,7 @@ function Home() {
   const { data: songsWithTags, isLoading: isLoadingTags } = useQuery({
     queryKey: ['songs-with-tags', likedSongs?.items],
     queryFn: async () => {
+      if (!likedSongs?.items) return null;
       const processedSongs = await Promise.all(
         likedSongs.items.map(async (item) => {
           try {
@@ -58,8 +63,7 @@ function Home() {
   });
 
   if (locationLoading || isLoadingSongs || isLoadingWeather || isLoadingTags) {
-    
-        return (
+    return (
       <div className="text-center p-4">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -82,27 +86,36 @@ function Home() {
     );
   }
 
+  const weatherData = weather?.current;
+  const hasWeatherData = !!weatherData;
+  const hasSongsData = !!songsWithTags?.length;
+
   return (
     <div className="space-y-6">
-      {location && weather && (
+      {hasWeatherData && (
         <WeatherDisplay
-          temperature={weather.current.temperature_2m}
-          weatherCode={weather.current.weathercode}
+          temperature={weatherData.temperature_2m}
+          weatherCode={weatherData.weathercode}
         />
       )}
-      
+
       {!accessToken ? (
         <SpotifyLogin />
       ) : (
         <>
-          {weather?.current && songsWithTags && (
+          {hasWeatherData && hasSongsData && (
             <WeatherPlaylist 
-              weatherCode={weather.current.weathercode}
-              temperature={weather.current.temperature_2m}
+              weatherCode={weatherData.weathercode}
+              temperature={weatherData.temperature_2m}
+              windSpeed={weatherData.windspeed_10m}
+              cloudCover={weatherData.cloudcover}
+              visibility={weatherData.visibility}
+              isDay={weatherData.is_day}
+              precipitation={weatherData.precipitation}
               songs={songsWithTags}
             />
           )}
-          <LikedSongs likedSongs={likedSongs} />
+          {likedSongs && <LikedSongs likedSongs={likedSongs} />}
         </>
       )}
     </div>
