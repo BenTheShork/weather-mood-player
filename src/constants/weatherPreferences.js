@@ -1,3 +1,5 @@
+const createWeatherMapping = (moods, weather, genres) => ({ moods, weather, genres });
+
 export const BASE_WEATHER_MAPPINGS = {
   // Clear conditions
   0: createWeatherMapping(
