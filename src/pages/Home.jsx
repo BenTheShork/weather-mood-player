@@ -16,6 +16,8 @@ function Home() {
     queryKey: ['liked-songs'],
     queryFn: () => spotifyService.getAllLikedSongs(accessToken),
     enabled: !!accessToken,
+    staleTime: Infinity,
+    cacheTime: Infinity,
   });
 
   const { data: weather, isLoading: isLoadingWeather } = useQuery({
@@ -24,6 +26,8 @@ function Home() {
       `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weathercode`
     ).then(res => res.json()),
     enabled: !!location,
+    staleTime: 30 * 60 * 1000,
+    cacheTime: 60 * 60 * 1000,
   });
 
   const { data: songsWithTags, isLoading: isLoadingTags } = useQuery({
@@ -32,13 +36,13 @@ function Home() {
       const processedSongs = await Promise.all(
         likedSongs.items.map(async (item) => {
           try {
-            const tags = await lastFmService.getAllPossibleTags(
+            const analysis = await lastFmService.getAllPossibleTags(
               item.track.artists[0].name,
               item.track.name
             );
             return {
               ...item,
-              tags: lastFmService.processTags(tags)
+              tags: lastFmService.processTags(analysis)
             };
           } catch (error) {
             console.error('Error processing track:', error);
@@ -49,10 +53,13 @@ function Home() {
       return processedSongs.filter(song => song !== null);
     },
     enabled: !!likedSongs?.items,
+    staleTime: Infinity,
+    cacheTime: Infinity,
   });
 
   if (locationLoading || isLoadingSongs || isLoadingWeather || isLoadingTags) {
-    return (
+    
+        return (
       <div className="text-center p-4">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -95,7 +102,7 @@ function Home() {
               songs={songsWithTags}
             />
           )}
-          <LikedSongs />
+          <LikedSongs likedSongs={likedSongs} />
         </>
       )}
     </div>
