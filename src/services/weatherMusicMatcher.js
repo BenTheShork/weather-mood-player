@@ -1,137 +1,5 @@
-const BASE_WEATHER_MAPPINGS  = {
-    // Clear sky
-    0: {
-      moods: ['happy', 'upbeat', 'energetic', 'positive', 'bright'],
-      weather: ['sunny', 'summer', 'hot'],
-      genres: ['pop', 'dance', 'indie']
-    },
-    // Mainly clear, partly cloudy
-    1: {
-      moods: ['happy', 'upbeat', 'mellow', 'peaceful'],
-      weather: ['sunny', 'warm'],
-      genres: ['indie', 'pop', 'folk']
-    },
-    // Partly cloudy
-    2: {
-      moods: ['mellow', 'peaceful', 'calm', 'gentle'],
-      weather: ['warm', 'spring'],
-      genres: ['folk', 'indie', 'pop']
-    },
-    // Overcast
-    3: {
-      moods: ['mellow', 'atmospheric', 'dreamy', 'calm'],
-      weather: ['cloudy'],
-      genres: ['ambient', 'indie', 'alternative']
-    },
-    // Foggy
-    45: {
-      moods: ['atmospheric', 'dreamy', 'moody', 'dark'],
-      weather: ['cold'],
-      genres: ['ambient', 'electronic', 'instrumental']
-    },
-    // Light drizzle
-    51: {
-      moods: ['melancholic', 'calm', 'peaceful', 'mellow'],
-      weather: ['rainy'],
-      genres: ['jazz', 'ambient', 'classical']
-    },
-    // Moderate drizzle
-    53: {
-      moods: ['melancholic', 'atmospheric', 'emotional', 'mellow'],
-      weather: ['rainy'],
-      genres: ['jazz', 'indie', 'alternative']
-    },
-    // Dense drizzle
-    55: {
-      moods: ['melancholic', 'moody', 'atmospheric', 'emotional'],
-      weather: ['rainy', 'cloudy'],
-      genres: ['indie', 'alternative', 'ambient']
-    },
-    // Light rain
-    61: {
-      moods: ['melancholic', 'atmospheric', 'emotional', 'peaceful'],
-      weather: ['rainy'],
-      genres: ['indie', 'jazz', 'alternative']
-    },
-    // Moderate rain
-    63: {
-      moods: ['moody', 'intense', 'atmospheric', 'emotional'],
-      weather: ['rainy'],
-      genres: ['rock', 'alternative', 'indie']
-    },
-    // Heavy rain
-    65: {
-      moods: ['intense', 'dramatic', 'atmospheric', 'powerful'],
-      weather: ['rainy', 'stormy'],
-      genres: ['rock', 'electronic', 'alternative']
-    },
-    // Light snow
-    71: {
-      moods: ['peaceful', 'calm', 'gentle', 'soft'],
-      weather: ['cold', 'winter'],
-      genres: ['classical', 'ambient', 'instrumental']
-    },
-    // Moderate snow
-    73: {
-      moods: ['peaceful', 'atmospheric', 'dreamy', 'gentle'],
-      weather: ['cold', 'winter'],
-      genres: ['ambient', 'classical', 'instrumental']
-    },
-    // Heavy snow
-    75: {
-      moods: ['atmospheric', 'intense', 'dramatic', 'powerful'],
-      weather: ['cold', 'winter', 'stormy'],
-      genres: ['classical', 'electronic', 'ambient']
-    },
-    // Thunderstorm
-    95: {
-      moods: ['intense', 'dramatic', 'powerful', 'epic'],
-      weather: ['stormy'],
-      genres: ['rock', 'metal', 'electronic']
-    }
-  };
+import { BASE_WEATHER_MAPPINGS, TIME_PREFERENCES, SEASON_PREFERENCES } from '../constants/weatherPreferences';
 
-  const TIME_PREFERENCES = {
-    morning: {
-      moods: ['energetic', 'upbeat', 'bright', 'positive'],
-      genres: ['pop', 'indie', 'electronic'],
-      boost: ['uplifting', 'fresh', 'light']
-    },
-    afternoon: {
-      moods: ['happy', 'mellow', 'peaceful', 'warm'],
-      genres: ['indie', 'pop', 'folk'],
-      boost: ['bright', 'smooth', 'gentle']
-    },
-    evening: {
-      moods: ['relaxing', 'mellow', 'atmospheric', 'romantic'],
-      genres: ['jazz', 'ambient', 'soul'],
-      boost: ['chill', 'smooth', 'soft']
-    },
-    night: {
-      moods: ['atmospheric', 'dark', 'dreamy', 'deep'],
-      genres: ['electronic', 'ambient', 'alternative'],
-      boost: ['dark', 'moody', 'deep']
-    }
-  };
-  
-  const SEASON_PREFERENCES = {
-    spring: {
-      boost: ['fresh', 'light', 'uplifting', 'bright'],
-      genres: ['indie', 'pop', 'folk']
-    },
-    summer: {
-      boost: ['energetic', 'upbeat', 'sunny', 'warm'],
-      genres: ['pop', 'dance', 'reggae']
-    },
-    autumn: {
-      boost: ['melancholic', 'atmospheric', 'moody', 'peaceful'],
-      genres: ['indie', 'folk', 'alternative']
-    },
-    winter: {
-      boost: ['cold', 'atmospheric', 'dramatic', 'peaceful'],
-      genres: ['classical', 'ambient', 'electronic']
-    }
-  };
   
   export const weatherMusicMatcher = {
     TIME_PREFERENCES,
@@ -229,67 +97,67 @@ const BASE_WEATHER_MAPPINGS  = {
     },
   
     calculateSongScore(weatherCode, songTags, temperature) {
-      if (!songTags || !songTags.moods || !songTags.weather || !songTags.genres) {
-        return 0;
-      }
-  
-      const weatherPreferences = BASE_WEATHER_MAPPINGS[weatherCode] || BASE_WEATHER_MAPPINGS[0];
-      const timeOfDay = this.getTimeOfDay();
-      const season = this.getSeason();
-      
-      let score = 0;
-      let hasOppositeTag = false;
-  
-      score += this.calculateMoodConsistency(songTags);
-      
-      weatherPreferences.moods.forEach(mood => {
-        if (songTags.moods?.includes(mood)) score += 3;
-      });
-  
-      weatherPreferences.weather.forEach(weather => {
-        if (songTags.weather?.includes(weather)) score += 2;
-      });
-  
-      weatherPreferences.genres.forEach(genre => {
-        if (songTags.genres?.includes(genre)) score += 1;
-      });
-  
-      const contextScore = this.calculateContextScore(songTags, timeOfDay, season, temperature);
-      score += contextScore;
-  
-      const opposites = {
-        happy: ['sad', 'melancholic'],
-        upbeat: ['mellow', 'calm'],
-        energetic: ['calm', 'peaceful'],
-        sunny: ['rainy', 'stormy'],
-        summer: ['winter'],
-        hot: ['cold'],
-        intense: ['peaceful', 'calm']
-      };
-  
-      Object.entries(opposites).forEach(([mood, opposites]) => {
-        if (songTags.moods?.includes(mood) && 
-            opposites.some(opp => songTags.moods?.includes(opp))) {
-          hasOppositeTag = true;
+        if (!songTags?.originalTags) return 0;
+    
+        const weatherPreferences = BASE_WEATHER_MAPPINGS[weatherCode] || BASE_WEATHER_MAPPINGS[0];
+        let score = 0;
+        let hasOppositeTag = false;
+    
+        songTags.originalTags.slice(0, 5).forEach(tag => {
+          const tagName = tag.name.toLowerCase();
+          const weight = (tag.count / 100) * 3; 
+    
+          if (weatherPreferences.moods.includes(tagName)) score += 3 * weight;
+          if (weatherPreferences.weather.includes(tagName)) score += 2 * weight;
+          if (weatherPreferences.genres.includes(tagName)) score += 1 * weight;
+    
+          const oppositePairs = {
+            'happy': ['sad', 'melancholic'],
+            'upbeat': ['mellow', 'calm'],
+            'energetic': ['calm', 'peaceful'],
+            'sunny': ['rainy', 'stormy'],
+            'summer': ['winter'],
+            'hot': ['cold'],
+            'intense': ['peaceful', 'calm']
+          };
+    
+          Object.entries(oppositePairs).forEach(([mood, opposites]) => {
+            if (mood === tagName && opposites.some(opp => 
+              songTags.originalTags.slice(0, 5).some(t => t.name.toLowerCase() === opp)
+            )) {
+              hasOppositeTag = true;
+            }
+          });
+        });
+    
+        songTags.originalTags.slice(5).forEach(tag => {
+          const tagName = tag.name.toLowerCase();
+          const weight = tag.count / 100;
+    
+          if (weatherPreferences.moods.includes(tagName)) score += 3 * weight;
+          if (weatherPreferences.weather.includes(tagName)) score += 2 * weight;
+          if (weatherPreferences.genres.includes(tagName)) score += 1 * weight;
+        });
+    
+        score += this.calculateContextScore(songTags, this.getTimeOfDay(), this.getSeason(), temperature);
+    
+        if (hasOppositeTag) {
+          score *= 0.3;
         }
-      });
+    
+        return Math.min(100, Math.round(score * 2));
+      },
+    
   
-      if (hasOppositeTag) {
-        score *= 0.3;
-      }
-  
-      return Math.min(100, Math.round(score * 2));
-    },
-  
-    findMatchingSongs(weatherCode, songs, temperature) {
-      return songs
-        .map(song => ({
-          ...song,
-          weatherScore: this.calculateSongScore(weatherCode, song.tags, temperature)
-        }))
-        .sort((a, b) => b.weatherScore - a.weatherScore)
-        .filter(song => song.weatherScore > 30);
-    },
+      findMatchingSongs(weatherCode, songs, temperature) {
+        return songs
+          .map(song => ({
+            ...song,
+            weatherScore: this.calculateSongScore(weatherCode, song.tags, temperature)
+          }))
+          .sort((a, b) => b.weatherScore - a.weatherScore)
+          .filter(song => song.weatherScore > 15); 
+      },
     calculateSongScore(weatherCode, songTags) {
       if (!songTags || !songTags.moods || !songTags.weather || !songTags.genres) {
         return 0;
